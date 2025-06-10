@@ -3,20 +3,20 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Location from 'expo-location';
 import React, { useEffect, useState } from 'react';
 import {
-    ActivityIndicator,
-    Alert,
-    FlatList,
-    KeyboardAvoidingView,
-    Modal,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Switch,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    useWindowDimensions,
-    View
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Switch,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  useWindowDimensions,
+  View
 } from 'react-native';
 
 const SettingsScreen = () => {
@@ -320,143 +320,296 @@ const SettingsScreen = () => {
       <ScrollView contentContainerStyle={isLandscape ? styles.landscapeContent : styles.content}>
         <Text style={styles.title}>Settings</Text>
         
-        <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Temperature Unit</Text>
-          <View style={styles.toggleContainer}>
-            <Text style={styles.toggleLabel}>Fahrenheit</Text>
-            <Switch
-              value={useCelsius}
-              onValueChange={toggleTemperatureUnit}
-              trackColor={{ false: '#767577', true: '#81b0ff' }}
-              thumbColor={useCelsius ? '#0096c7' : '#f4f3f4'}
-            />
-            <Text style={styles.toggleLabel}>Celsius</Text>
-          </View>
-        </View>
-        
-        <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Location Settings</Text>
-          
-          <TouchableOpacity
-            style={styles.searchButton}
-            onPress={() => setShowSearchModal(true)}
-          >
-            <Ionicons name="search" size={20} color="white" />
-            <Text style={styles.buttonText}>Search for a City</Text>
-          </TouchableOpacity>
-          
-          <View style={styles.inputContainer}>
-            <Text style={styles.label}>Location Name</Text>
-            <TextInput
-              style={styles.input}
-              value={locationName}
-              onChangeText={setLocationName}
-              placeholder="Enter location name"
-              placeholderTextColor="#aaa"
-            />
-          </View>
-          
-          <View style={styles.coordinatesContainer}>
-            <View style={styles.coordinateInput}>
-              <Text style={styles.label}>Latitude</Text>
-              <TextInput
-                style={styles.input}
-                value={latitude}
-                onChangeText={setLatitude}
-                placeholder="Latitude"
-                placeholderTextColor="#aaa"
-                keyboardType="numeric"
-              />
-            </View>
-            
-            <View style={styles.coordinateInput}>
-              <Text style={styles.label}>Longitude</Text>
-              <TextInput
-                style={styles.input}
-                value={longitude}
-                onChangeText={setLongitude}
-                placeholder="Longitude"
-                placeholderTextColor="#aaa"
-                keyboardType="numeric"
-              />
-            </View>
-          </View>
-          
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={[styles.button, styles.getCurrentButton]}
-              onPress={useCurrentLocation}
-            >
-              <Ionicons name="locate" size={20} color="white" />
-              <Text style={styles.buttonText}>Use Current</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity
-              style={[styles.button, styles.saveButton]}
-              onPress={saveLocation}
-            >
-              <Ionicons name="add-circle" size={20} color="white" />
-              <Text style={styles.buttonText}>Save</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity
-              style={[styles.button, styles.defaultButton]}
-              onPress={saveDefaultLocation}
-            >
-              <Ionicons name="star" size={20} color="white" />
-              <Text style={styles.buttonText}>Set Default</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-        
-        {savedLocations.length > 0 && (
-          <View style={styles.card}>
-            <Text style={styles.sectionTitle}>Saved Locations</Text>
-            
-            {savedLocations.map((location, index) => (
-              <View key={index} style={styles.savedLocationItem}>
-                <View style={styles.locationInfo}>
-                  <Text style={styles.locationName}>{location.name}</Text>
-                  <Text style={styles.locationCoords}>
-                    {location.latitude.toFixed(4)}, {location.longitude.toFixed(4)}
-                  </Text>
-                  {defaultLocation && 
-                    defaultLocation.latitude === location.latitude && 
-                    defaultLocation.longitude === location.longitude && (
-                    <View style={styles.defaultBadge}>
-                      <Text style={styles.defaultBadgeText}>Default</Text>
-                    </View>
-                  )}
+        {isLandscape ? (
+          // Landscape layout with two columns
+          <>
+            <View style={styles.landscapeLeftColumn}>
+              <View style={styles.card}>
+                <Text style={styles.sectionTitle}>Temperature Unit</Text>
+                <View style={styles.toggleContainer}>
+                  <Text style={styles.toggleLabel}>Fahrenheit</Text>
+                  <Switch
+                    value={useCelsius}
+                    onValueChange={toggleTemperatureUnit}
+                    trackColor={{ false: '#767577', true: '#81b0ff' }}
+                    thumbColor={useCelsius ? '#0096c7' : '#f4f3f4'}
+                  />
+                  <Text style={styles.toggleLabel}>Celsius</Text>
+                </View>
+              </View>
+
+              <View style={styles.card}>
+                <Text style={styles.sectionTitle}>Location Settings</Text>
+                
+                <TouchableOpacity
+                  style={styles.searchButton}
+                  onPress={() => setShowSearchModal(true)}
+                >
+                  <Ionicons name="search" size={20} color="white" />
+                  <Text style={styles.buttonText}>Search for a City</Text>
+                </TouchableOpacity>
+                
+                <View style={styles.inputContainer}>
+                  <Text style={styles.label}>Location Name</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={locationName}
+                    onChangeText={setLocationName}
+                    placeholder="Enter location name"
+                    placeholderTextColor="#aaa"
+                  />
                 </View>
                 
-                <View style={styles.locationActions}>
+                <View style={styles.coordinatesContainer}>
+                  <View style={styles.coordinateInput}>
+                    <Text style={styles.label}>Latitude</Text>
+                    <TextInput
+                      style={styles.input}
+                      value={latitude}
+                      onChangeText={setLatitude}
+                      placeholder="Latitude"
+                      placeholderTextColor="#aaa"
+                      keyboardType="numeric"
+                    />
+                  </View>
+                  
+                  <View style={styles.coordinateInput}>
+                    <Text style={styles.label}>Longitude</Text>
+                    <TextInput
+                      style={styles.input}
+                      value={longitude}
+                      onChangeText={setLongitude}
+                      placeholder="Longitude"
+                      placeholderTextColor="#aaa"
+                      keyboardType="numeric"
+                    />
+                  </View>
+                </View>
+              </View>
+            </View>
+            
+            <View style={styles.landscapeRightColumn}>
+              <View style={styles.card}>
+                <View style={styles.buttonContainer}>
                   <TouchableOpacity
-                    style={styles.locationButton}
-                    onPress={() => setAsDefault(location)}
+                    style={[styles.button, styles.getCurrentButton]}
+                    onPress={useCurrentLocation}
                   >
-                    <Ionicons name="star" size={20} color="white" />
+                    <Ionicons name="locate" size={20} color="white" />
+                    <Text style={styles.buttonText}>Use Current</Text>
                   </TouchableOpacity>
                   
                   <TouchableOpacity
-                    style={[styles.locationButton, styles.deleteButton]}
-                    onPress={() => deleteLocation(location)}
+                    style={[styles.button, styles.saveButton]}
+                    onPress={saveLocation}
                   >
-                    <Ionicons name="trash" size={20} color="white" />
+                    <Ionicons name="add-circle" size={20} color="white" />
+                    <Text style={styles.buttonText}>Save</Text>
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity
+                    style={[styles.button, styles.defaultButton]}
+                    onPress={saveDefaultLocation}
+                  >
+                    <Ionicons name="star" size={20} color="white" />
+                    <Text style={styles.buttonText}>Set Default</Text>
                   </TouchableOpacity>
                 </View>
               </View>
-            ))}
-          </View>
-        )}
-        
-        {defaultLocation && (
-          <TouchableOpacity
-            style={[styles.button, styles.clearButton]}
-            onPress={clearDefaultLocation}
-          >
-            <Ionicons name="trash" size={20} color="white" />
-            <Text style={styles.buttonText}>Clear Default Location</Text>
-          </TouchableOpacity>
+              
+              {savedLocations.length > 0 && (
+                <View style={styles.card}>
+                  <Text style={styles.sectionTitle}>Saved Locations</Text>
+                  
+                  {savedLocations.map((location, index) => (
+                    <View key={index} style={styles.savedLocationItem}>
+                      <View style={styles.locationInfo}>
+                        <Text style={styles.locationName}>{location.name}</Text>
+                        <Text style={styles.locationCoords}>
+                          {location.latitude.toFixed(4)}, {location.longitude.toFixed(4)}
+                        </Text>
+                        {defaultLocation && 
+                          defaultLocation.latitude === location.latitude && 
+                          defaultLocation.longitude === location.longitude && (
+                          <View style={styles.defaultBadge}>
+                            <Text style={styles.defaultBadgeText}>Default</Text>
+                          </View>
+                        )}
+                      </View>
+                      
+                      <View style={styles.locationActions}>
+                        <TouchableOpacity
+                          style={styles.locationButton}
+                          onPress={() => setAsDefault(location)}
+                        >
+                          <Ionicons name="star" size={20} color="white" />
+                        </TouchableOpacity>
+                        
+                        <TouchableOpacity
+                          style={[styles.locationButton, styles.deleteButton]}
+                          onPress={() => deleteLocation(location)}
+                        >
+                          <Ionicons name="trash" size={20} color="white" />
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  ))}
+                  
+                  {defaultLocation && (
+                    <TouchableOpacity
+                      style={[styles.button, styles.clearButton]}
+                      onPress={clearDefaultLocation}
+                    >
+                      <Ionicons name="trash" size={20} color="white" />
+                      <Text style={styles.buttonText}>Clear Default Location</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              )}
+            </View>
+          </>
+        ) : (
+          // Original portrait layout
+          <>
+            <View style={styles.card}>
+              <Text style={styles.sectionTitle}>Temperature Unit</Text>
+              <View style={styles.toggleContainer}>
+                <Text style={styles.toggleLabel}>Fahrenheit</Text>
+                <Switch
+                  value={useCelsius}
+                  onValueChange={toggleTemperatureUnit}
+                  trackColor={{ false: '#767577', true: '#81b0ff' }}
+                  thumbColor={useCelsius ? '#0096c7' : '#f4f3f4'}
+                />
+                <Text style={styles.toggleLabel}>Celsius</Text>
+              </View>
+            </View>
+            
+            <View style={styles.card}>
+              <Text style={styles.sectionTitle}>Location Settings</Text>
+              
+              <TouchableOpacity
+                style={styles.searchButton}
+                onPress={() => setShowSearchModal(true)}
+              >
+                <Ionicons name="search" size={20} color="white" />
+                <Text style={styles.buttonText}>Search for a City</Text>
+              </TouchableOpacity>
+              
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Location Name</Text>
+                <TextInput
+                  style={styles.input}
+                  value={locationName}
+                  onChangeText={setLocationName}
+                  placeholder="Enter location name"
+                  placeholderTextColor="#aaa"
+                />
+              </View>
+              
+              <View style={styles.coordinatesContainer}>
+                <View style={styles.coordinateInput}>
+                  <Text style={styles.label}>Latitude</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={latitude}
+                    onChangeText={setLatitude}
+                    placeholder="Latitude"
+                    placeholderTextColor="#aaa"
+                    keyboardType="numeric"
+                  />
+                </View>
+                
+                <View style={styles.coordinateInput}>
+                  <Text style={styles.label}>Longitude</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={longitude}
+                    onChangeText={setLongitude}
+                    placeholder="Longitude"
+                    placeholderTextColor="#aaa"
+                    keyboardType="numeric"
+                  />
+                </View>
+              </View>
+              
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                  style={[styles.button, styles.getCurrentButton]}
+                  onPress={useCurrentLocation}
+                >
+                  <Ionicons name="locate" size={20} color="white" />
+                  <Text style={styles.buttonText}>Use Current</Text>
+                </TouchableOpacity>
+                
+                <TouchableOpacity
+                  style={[styles.button, styles.saveButton]}
+                  onPress={saveLocation}
+                >
+                  <Ionicons name="add-circle" size={20} color="white" />
+                  <Text style={styles.buttonText}>Save</Text>
+                </TouchableOpacity>
+                
+                <TouchableOpacity
+                  style={[styles.button, styles.defaultButton]}
+                  onPress={saveDefaultLocation}
+                >
+                  <Ionicons name="star" size={20} color="white" />
+                  <Text style={styles.buttonText}>Set Default</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+            
+            {savedLocations.length > 0 && (
+              <View style={styles.card}>
+                <Text style={styles.sectionTitle}>Saved Locations</Text>
+                
+                {savedLocations.map((location, index) => (
+                  <View key={index} style={styles.savedLocationItem}>
+                    <View style={styles.locationInfo}>
+                      <Text style={styles.locationName}>{location.name}</Text>
+                      <Text style={styles.locationCoords}>
+                        {location.latitude.toFixed(4)}, {location.longitude.toFixed(4)}
+                      </Text>
+                      {defaultLocation && 
+                        defaultLocation.latitude === location.latitude && 
+                        defaultLocation.longitude === location.longitude && (
+                        <View style={styles.defaultBadge}>
+                          <Text style={styles.defaultBadgeText}>Default</Text>
+                        </View>
+                      )}
+                    </View>
+                    
+                    <View style={styles.locationActions}>
+                      <TouchableOpacity
+                        style={styles.locationButton}
+                        onPress={() => setAsDefault(location)}
+                      >
+                        <Ionicons name="star" size={20} color="white" />
+                      </TouchableOpacity>
+                      
+                      <TouchableOpacity
+                        style={[styles.locationButton, styles.deleteButton]}
+                        onPress={() => deleteLocation(location)}
+                      >
+                        <Ionicons name="trash" size={20} color="white" />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                ))}
+                
+                {defaultLocation && (
+                  <TouchableOpacity
+                    style={[styles.button, styles.clearButton]}
+                    onPress={clearDefaultLocation}
+                  >
+                    <Ionicons name="trash" size={20} color="white" />
+                    <Text style={styles.buttonText}>Clear Default Location</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            )}
+          </>
         )}
       </ScrollView>
       
@@ -547,6 +700,15 @@ const styles = StyleSheet.create({
   landscapeContent: {
     padding: 20,
     paddingTop: 20,
+    flexDirection: 'row',
+  },
+  landscapeLeftColumn: {
+    flex: 1,
+    paddingRight: 10,
+  },
+  landscapeRightColumn: {
+    flex: 1,
+    paddingLeft: 10,
   },
   title: {
     fontSize: 28,

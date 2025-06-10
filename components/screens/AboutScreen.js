@@ -18,77 +18,161 @@ const AboutScreen = () => {
   return (
     <ScrollView style={styles.container}>      
       <View style={isLandscape ? styles.landscapeContent : styles.content}>
-        <View style={styles.logoContainer}>
-          <Image
-            source={require('../../assets/images/icon.png')}
-            style={styles.logo}
-            resizeMode="contain"
-          />
-          <Text style={styles.title}>Deltion Weather App</Text>
-        </View>
+        {isLandscape ? (
+          // Landscape layout
+          <View style={styles.landscapeContainer}>
+            <View style={styles.landscapeLeftColumn}>
+              <View style={styles.logoContainer}>
+                <Image
+                  source={require('../../assets/images/icon.png')}
+                  style={[styles.logo, isLandscape && styles.landscapeLogo]}
+                  resizeMode="contain"
+                />
+                <Text style={[styles.title, isLandscape && styles.landscapeTitle]}>Deltion Weather App</Text>
+              </View>
 
-        <View style={styles.card}>
-          <Text style={styles.sectionTitle}>About this App</Text>
-          <Text style={styles.paragraph}>
-            This Weather App was created for a school project at Deltion College. It provides 
-            current weather information, forecasts, and allows you to save your favorite locations.
-          </Text>
-        </View>
+              <View style={styles.card}>
+                <Text style={styles.sectionTitle}>About this App</Text>
+                <Text style={styles.paragraph}>
+                  This Weather App was created for a school project at Deltion College. It provides 
+                  current weather information, forecasts, and allows you to save your favorite locations.
+                </Text>
+              </View>
 
-        <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Features</Text>
-          <View style={styles.featureItem}>
-            <Ionicons name="location" size={24} color="#4cc9f0" />
-            <Text style={styles.featureText}>Real-time weather based on your location</Text>
-          </View>
-          <View style={styles.featureItem}>
-            <Ionicons name="thermometer" size={24} color="#4cc9f0" />
-            <Text style={styles.featureText}>Temperature in Celsius or Fahrenheit</Text>
-          </View>
-          <View style={styles.featureItem}>
-            <Ionicons name="navigate" size={24} color="#4cc9f0" />
-            <Text style={styles.featureText}>Wind direction and speed</Text>
-          </View>
-          <View style={styles.featureItem}>
-            <Ionicons name="speedometer" size={24} color="#4cc9f0" />
-            <Text style={styles.featureText}>Atmospheric pressure</Text>
-          </View>
-          <View style={styles.featureItem}>
-            <Ionicons name="phone-landscape" size={24} color="#4cc9f0" />
-            <Text style={styles.featureText}>Responsive layout for portrait and landscape</Text>
-          </View>
-        </View>
+              <View style={styles.creditCard}>
+                <Text style={styles.creditText}>
+                  Weather data provided by OpenWeatherMap
+                </Text>
+              </View>
+            </View>
 
-        <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Developers</Text>
-          <View style={styles.developerInfo}>
-            <Ionicons name="person-circle" size={50} color="#4cc9f0" />
-            <View style={styles.developerText}>
-              <Text style={styles.developerName}>Wesley</Text>
-              <Text style={styles.developerRole}>Student Developer</Text>
-              <Text style={styles.developerSchool}>Class SD3A - Deltion College</Text>
+            <View style={styles.landscapeRightColumn}>
+              <View style={styles.card}>
+                <Text style={styles.sectionTitle}>Features</Text>
+                <View style={styles.featureItem}>
+                  <Ionicons name="location" size={24} color="#4cc9f0" />
+                  <Text style={styles.featureText}>Real-time weather based on your location</Text>
+                </View>
+                <View style={styles.featureItem}>
+                  <Ionicons name="thermometer" size={24} color="#4cc9f0" />
+                  <Text style={styles.featureText}>Temperature in Celsius or Fahrenheit</Text>
+                </View>
+                <View style={styles.featureItem}>
+                  <Ionicons name="navigate" size={24} color="#4cc9f0" />
+                  <Text style={styles.featureText}>Wind direction and speed</Text>
+                </View>
+                <View style={styles.featureItem}>
+                  <Ionicons name="speedometer" size={24} color="#4cc9f0" />
+                  <Text style={styles.featureText}>Atmospheric pressure</Text>
+                </View>
+                <View style={styles.featureItem}>
+                  <Ionicons name="phone-landscape" size={24} color="#4cc9f0" />
+                  <Text style={styles.featureText}>Responsive layout for portrait and landscape</Text>
+                </View>
+              </View>
+
+              <View style={styles.card}>
+                <Text style={styles.sectionTitle}>Developers</Text>
+                <View style={styles.developerInfo}>
+                  <Ionicons name="person-circle" size={50} color="#4cc9f0" />
+                  <View style={styles.developerText}>
+                    <Text style={styles.developerName}>Wesley</Text>
+                    <Text style={styles.developerRole}>Student Developer</Text>
+                    <Text style={styles.developerSchool}>Class SD3A - Deltion College</Text>
+                  </View>
+                </View>
+                
+                <View style={styles.developerInfo}>
+                  <Ionicons name="person-circle" size={50} color="#4cc9f0" />
+                  <View style={styles.developerText}>
+                    <Text style={styles.developerName}>Teun</Text>
+                    <Text style={styles.developerRole}>Student Developer</Text>
+                    <Text style={styles.developerSchool}>Class SD3A - Deltion College</Text>
+                  </View>
+                </View>
+              </View>
+
+              <Text style={styles.copyright}>
+                © {currentYear} Wesley & Teun - Class SD3A - Deltion College. All rights reserved.
+              </Text>
             </View>
           </View>
-          
-          <View style={styles.developerInfo}>
-            <Ionicons name="person-circle" size={50} color="#4cc9f0" />
-            <View style={styles.developerText}>
-              <Text style={styles.developerName}>Teun</Text>
-              <Text style={styles.developerRole}>Student Developer</Text>
-              <Text style={styles.developerSchool}>Class SD3A - Deltion College</Text>
+        ) : (
+          // Portrait layout (original)
+          <>
+            <View style={styles.logoContainer}>
+              <Image
+                source={require('../../assets/images/icon.png')}
+                style={styles.logo}
+                resizeMode="contain"
+              />
+              <Text style={styles.title}>Deltion Weather App</Text>
             </View>
-          </View>
-        </View>
 
-        <View style={styles.creditCard}>
-          <Text style={styles.creditText}>
-            Weather data provided by OpenWeatherMap
-          </Text>
-        </View>
+            <View style={styles.card}>
+              <Text style={styles.sectionTitle}>About this App</Text>
+              <Text style={styles.paragraph}>
+                This Weather App was created for a school project at Deltion College. It provides 
+                current weather information, forecasts, and allows you to save your favorite locations.
+              </Text>
+            </View>
 
-        <Text style={styles.copyright}>
-          © {currentYear} Wesley & Teun - Class SD3A - Deltion College. All rights reserved.
-        </Text>
+            <View style={styles.card}>
+              <Text style={styles.sectionTitle}>Features</Text>
+              <View style={styles.featureItem}>
+                <Ionicons name="location" size={24} color="#4cc9f0" />
+                <Text style={styles.featureText}>Real-time weather based on your location</Text>
+              </View>
+              <View style={styles.featureItem}>
+                <Ionicons name="thermometer" size={24} color="#4cc9f0" />
+                <Text style={styles.featureText}>Temperature in Celsius or Fahrenheit</Text>
+              </View>
+              <View style={styles.featureItem}>
+                <Ionicons name="navigate" size={24} color="#4cc9f0" />
+                <Text style={styles.featureText}>Wind direction and speed</Text>
+              </View>
+              <View style={styles.featureItem}>
+                <Ionicons name="speedometer" size={24} color="#4cc9f0" />
+                <Text style={styles.featureText}>Atmospheric pressure</Text>
+              </View>
+              <View style={styles.featureItem}>
+                <Ionicons name="phone-landscape" size={24} color="#4cc9f0" />
+                <Text style={styles.featureText}>Responsive layout for portrait and landscape</Text>
+              </View>
+            </View>
+
+            <View style={styles.card}>
+              <Text style={styles.sectionTitle}>Developers</Text>
+              <View style={styles.developerInfo}>
+                <Ionicons name="person-circle" size={50} color="#4cc9f0" />
+                <View style={styles.developerText}>
+                  <Text style={styles.developerName}>Wesley</Text>
+                  <Text style={styles.developerRole}>Student Developer</Text>
+                  <Text style={styles.developerSchool}>Class SD3A - Deltion College</Text>
+                </View>
+              </View>
+              
+              <View style={styles.developerInfo}>
+                <Ionicons name="person-circle" size={50} color="#4cc9f0" />
+                <View style={styles.developerText}>
+                  <Text style={styles.developerName}>Teun</Text>
+                  <Text style={styles.developerRole}>Student Developer</Text>
+                  <Text style={styles.developerSchool}>Class SD3A - Deltion College</Text>
+                </View>
+              </View>
+            </View>
+
+            <View style={styles.creditCard}>
+              <Text style={styles.creditText}>
+                Weather data provided by OpenWeatherMap
+              </Text>
+            </View>
+
+            <Text style={styles.copyright}>
+              © {currentYear} Wesley & Teun - Class SD3A - Deltion College. All rights reserved.
+            </Text>
+          </>
+        )}
       </View>
     </ScrollView>
   );
@@ -108,6 +192,25 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingTop: 20,
     paddingBottom: 20,
+  },
+  landscapeContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  landscapeLeftColumn: {
+    flex: 1,
+    paddingRight: 10,
+  },
+  landscapeRightColumn: {
+    flex: 1,
+    paddingLeft: 10,
+  },
+  landscapeLogo: {
+    width: 80,
+    height: 80,
+  },
+  landscapeTitle: {
+    fontSize: 20,
   },
   logoContainer: {
     alignItems: 'center',

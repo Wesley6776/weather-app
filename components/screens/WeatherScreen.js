@@ -362,7 +362,6 @@ const WeatherScreen = () => {
       </View>
     );
   }
-
   if (!weatherData) {
     return (
       <View style={styles.centeredContainer}>
@@ -370,9 +369,7 @@ const WeatherScreen = () => {
       </View>
     );
   }
-  // Calculate wind speed in different units
-  const windSpeeds = getWindSpeed(safeExtract(weatherData, 'wind.speed', 0));
-
+  
   // Check if the weather data is valid
   if (!isValidWeatherData(weatherData)) {
     return (
@@ -382,290 +379,543 @@ const WeatherScreen = () => {
       </View>
     );
   }
-
+  
   // Extract temperature data using our safety utility
   const temperatureData = extractTemperatureData(weatherData);
   // Extract weather condition data
   const weatherCondition = extractWeatherCondition(weatherData);
   // Extract wind data
   const windData = extractWindData(weatherData);
+  // Calculate wind speed in different units
+  const windSpeeds = getWindSpeed(safeExtract(weatherData, 'wind.speed', 0));
 
   return (
     <ScrollView 
       style={styles.container}
       contentContainerStyle={isLandscape ? styles.landscapeContent : styles.portraitContent}
-    >      <View style={isLandscape ? styles.landscapeMainInfo : styles.mainInfo}>        <View style={styles.locationContainer}>
-          <SafeText style={[styles.cityName, isSmallScreen && { fontSize: 22 }]}>
-            {safeText(safeExtract(weatherData, 'name', '')) + 
-             (safeExtract(weatherData, 'sys.country', '') ? ', ' + safeExtract(weatherData, 'sys.country', '') : '')}
-          </SafeText>
-          <TouchableOpacity 
-            style={styles.locationButton}
-            onPress={() => setShowLocationMenu(!showLocationMenu)}
-          >
-            <View style={styles.locationButtonContent}>
-              <Ionicons name="location" size={20} color="white" />
-              <SafeText style={styles.changeLocationText}>Change</SafeText>
-            </View>
-          </TouchableOpacity>
-        </View>          {showLocationMenu && (
-          <View style={styles.locationMenu}>            <View style={styles.locationMenuHeader}>
-              <SafeText style={[styles.locationMenuTitle, isSmallScreen && { fontSize: 16 }]}>
-                Choose Location
+    >      
+      {isLandscape ? (
+        // Landscape layout
+        <View style={styles.landscapeContainer}>
+          {/* Left side: Main weather info */}
+          <View style={styles.landscapeMainInfo}>        
+            <View style={styles.locationContainer}>
+              <SafeText style={[styles.cityName, isSmallScreen && { fontSize: 22 }]}>
+                {safeText(safeExtract(weatherData, 'name', '')) + 
+                 (safeExtract(weatherData, 'sys.country', '') ? ', ' + safeExtract(weatherData, 'sys.country', '') : '')}
               </SafeText>
               <TouchableOpacity 
-                style={styles.locationMenuCloseButton}
-                onPress={() => setShowLocationMenu(false)}
+                style={styles.locationButton}
+                onPress={() => setShowLocationMenu(!showLocationMenu)}
               >
-                <Ionicons name="close" size={20} color="white" />
+                <View style={styles.locationButtonContent}>
+                  <Ionicons name="location" size={20} color="white" />
+                  <SafeText style={styles.changeLocationText}>Change</SafeText>
+                </View>
               </TouchableOpacity>
             </View>
-            <ScrollView 
-              style={styles.locationMenuScroll} 
-              showsVerticalScrollIndicator={false}
-              bounces={false}
-              contentContainerStyle={{paddingVertical: 5}}
-            >              <TouchableOpacity 
-                style={[styles.locationMenuItem, !selectedLocation ? styles.activeLocationMenuItem : null]}
-                onPress={useCurrentLocation}
-              >
-                <View style={styles.locationMenuItemIcon}>
-                  <Ionicons name="navigate" size={20} color="#4cc9f0" />
+            
+            {showLocationMenu && (
+              <View style={[styles.locationMenu, isLandscape && styles.landscapeLocationMenu]}>
+                <View style={styles.locationMenuHeader}>
+                  <SafeText style={[styles.locationMenuTitle, isSmallScreen && { fontSize: 16 }]}>
+                    Choose Location
+                  </SafeText>
+                  <TouchableOpacity 
+                    style={styles.locationMenuCloseButton}
+                    onPress={() => setShowLocationMenu(false)}
+                  >
+                    <Ionicons name="close" size={20} color="white" />
+                  </TouchableOpacity>
                 </View>
-                <SafeText style={styles.locationMenuItemText}>Current Location</SafeText>
-              </TouchableOpacity>
-              
-              {savedLocations.map((location, index) => (
-                <TouchableOpacity 
-                  key={index}
-                  style={[
-                    styles.locationMenuItem,
-                    selectedLocation && 
-                    selectedLocation.latitude === location.latitude && 
-                    selectedLocation.longitude === location.longitude ? 
-                    styles.activeLocationMenuItem : null
-                  ]}
-                  onPress={() => changeLocation(location)}
-                >                  <View style={styles.locationMenuItemIcon}>
-                    <Ionicons 
-                      name={
-                        defaultLocation && 
-                        defaultLocation.latitude === location.latitude && 
-                        defaultLocation.longitude === location.longitude ? 
-                        "star" : "location-outline"
-                      } 
-                      size={20} 
-                      color="#4cc9f0" 
-                    />
-                  </View>
-                  <SafeText style={styles.locationMenuItemText}>{location.name}</SafeText>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          </View>
-        )}          <View style={styles.tempContainer}>          <Image
-            style={[styles.weatherIcon, isSmallScreen && { width: 80, height: 80 }]}
-            source={{ uri: getWeatherIconUrl(weatherCondition.icon) }}
-          />
-          <SafeText style={[styles.temperature, isSmallScreen && { fontSize: 38 }]}>
-            {formatTemperature(temperatureData.current)}
-          </SafeText>
-        </View>
-        
-        <SafeText style={[styles.weatherDescription, isSmallScreen && { fontSize: 18 }]}>
-          {weatherCondition.description}
-        </SafeText>          <View style={styles.minMaxContainer}>
-          <SafeText style={[styles.minMaxTemp, isSmallScreen && { fontSize: 14 }]}>
-            {`Min: ${formatTemperature(temperatureData.min)}`}
-          </SafeText>
-          <SafeText style={[styles.minMaxTemp, isSmallScreen && { fontSize: 14 }]}>
-            {`Max: ${formatTemperature(temperatureData.max)}`}
-          </SafeText>        </View>
-      </View>      <View style={isLandscape ? styles.landscapeDetailsContainer : styles.detailsContainer}>        <View style={[styles.detailCard, isSmallScreen && { padding: 10 }]}>
-          <SafeText style={styles.detailTitle}>Wind</SafeText>          <View style={styles.windDirection}>
-            {getWindDirectionArrow(windData.deg)}
-            <SafeText style={[styles.detailValue, isSmallScreen && { fontSize: 16 }]}>
-              {windSpeeds.beaufort.display}
-            </SafeText>
-          </View>
-          <SafeText style={styles.detailSubvalue}>{windSpeeds.kmh.display}</SafeText>
-          <SafeText style={styles.detailSubvalue}>{windSpeeds.knots.display}</SafeText>
-        </View>
-          <View style={[styles.detailCard, isSmallScreen && { padding: 10 }]}>
-          <SafeText style={styles.detailTitle}>Pressure</SafeText>
-          <SafeText style={[styles.detailValue, isSmallScreen && { fontSize: 16 }]}>
-            {`${weatherData.main && typeof weatherData.main.pressure === 'number' ? weatherData.main.pressure : 0} hPa`}
-          </SafeText>
-        </View>
-          <View style={[styles.detailCard, isSmallScreen && { padding: 10 }]}
-          >
-          <SafeText style={styles.detailTitle}>Humidity</SafeText>
-          <SafeText style={[styles.detailValue, isSmallScreen && { fontSize: 16 }]}>
-            {`${weatherData.main && typeof weatherData.main.humidity === 'number' ? weatherData.main.humidity : 0}%`}
-          </SafeText>
-        </View>
-        
-        <View style={[styles.detailCard, isSmallScreen && { padding: 10 }]}>
-          <SafeText style={styles.detailTitle}>Feels Like</SafeText>
-          <SafeText style={[styles.detailValue, isSmallScreen && { fontSize: 16 }]}>
-            {formatTemperature(temperatureData.feelsLike)}
-          </SafeText>
-        </View></View>
-        <View style={styles.forecastContainer}>
-        <TouchableOpacity 
-          style={styles.forecastToggle} 
-          onPress={toggleForecast}
-        >
-          <SafeText style={[styles.forecastToggleText, isSmallScreen && { fontSize: 14 }]}>
-            {showForecast ? 'Hide Forecast' : 'Show 5-Day Forecast'}
-          </SafeText>
-          <Ionicons 
-            name={showForecast ? 'chevron-up' : 'chevron-down'} 
-            size={24} 
-            color="white"          />
-        </TouchableOpacity>
-        
-        {showForecast && forecastData && (
-          <View style={styles.forecastContent}>
-            <FlatList
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              data={forecastData.list.slice(0, 24)}
-              keyExtractor={(item) => item.dt.toString()}
-              renderItem={({ item }) => {
-                const { time, hour } = formatForecastDate(item.dt);
-                // Get appropriate background based on time of day
-                let timeStyle = styles.dayTime;
-                if (hour < 6 || hour >= 18) {
-                  timeStyle = styles.nightTime;
-                } else if (hour < 10 || hour >= 16) {
-                  timeStyle = styles.morningEveningTime;
-                }
-                
-                return (                  <View style={[
-                    styles.forecastItem, 
-                    timeStyle,
-                    isSmallScreen && { minWidth: 90, padding: 8 }
-                  ]}>                    <SafeText style={[styles.forecastTime, isSmallScreen && { fontSize: 12, marginBottom: 5 }]}>
-                      {time}
-                    </SafeText>                    <Image 
-                      style={[styles.forecastIcon, isSmallScreen && { width: 40, height: 40, marginBottom: 3 }]}
-                      source={{ uri: getWeatherIconUrl(item.weather && item.weather.length > 0 ? item.weather[0].icon : '01d') }}
-                    />
-                    <SafeText style={[styles.weatherCondition, isSmallScreen && { fontSize: 11, marginBottom: 3 }]}>
-                      {item.weather && item.weather.length > 0 && item.weather[0].main ? item.weather[0].main : "Unknown"}
-                    </SafeText>
-                    <SafeText style={[styles.forecastTemp, isSmallScreen && { fontSize: 14, marginBottom: 5 }]}>
-                      {formatTemperature(item.main && typeof item.main.temp === 'number' ? item.main.temp : 0)}
-                    </SafeText>                    <View style={styles.forecastWindContainer}>
-                      <View style={isSmallScreen && { transform: [{ scale: 0.8 }] }}>
-                        {getWindDirectionArrow(item.wind && typeof item.wind.deg === 'number' ? item.wind.deg : 0)}
-                      </View>
-                      <SafeText style={[styles.forecastWind, isSmallScreen && { fontSize: 10 }]}>
-                        {`${Math.round((item.wind && typeof item.wind.speed === 'number' ? item.wind.speed : 0) * 3.6)} km/h`}
-                      </SafeText>
+                <ScrollView 
+                  style={styles.locationMenuScroll} 
+                  showsVerticalScrollIndicator={false}
+                  bounces={false}
+                  contentContainerStyle={{paddingVertical: 5}}
+                >
+                  <TouchableOpacity 
+                    style={[styles.locationMenuItem, !selectedLocation ? styles.activeLocationMenuItem : null]}
+                    onPress={useCurrentLocation}
+                  >
+                    <View style={styles.locationMenuItemIcon}>
+                      <Ionicons name="navigate" size={20} color="#4cc9f0" />
                     </View>
-                  </View>
-                );
-              }}
-            />            
-            <SafeText style={[styles.forecastTitle, isSmallScreen && { fontSize: 18 }]}>
-              5-Day Forecast
+                    <SafeText style={styles.locationMenuItemText}>Current Location</SafeText>
+                  </TouchableOpacity>
+                  
+                  {savedLocations.map((location, index) => (
+                    <TouchableOpacity 
+                      key={index}
+                      style={[
+                        styles.locationMenuItem,
+                        selectedLocation && 
+                        selectedLocation.latitude === location.latitude && 
+                        selectedLocation.longitude === location.longitude ? 
+                        styles.activeLocationMenuItem : null
+                      ]}
+                      onPress={() => changeLocation(location)}
+                    >
+                      <View style={styles.locationMenuItemIcon}>
+                        <Ionicons 
+                          name={
+                            defaultLocation && 
+                            defaultLocation.latitude === location.latitude && 
+                            defaultLocation.longitude === location.longitude ? 
+                            "star" : "location-outline"
+                          } 
+                          size={20} 
+                          color="#4cc9f0" 
+                        />
+                      </View>
+                      <SafeText style={styles.locationMenuItemText}>{location.name}</SafeText>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+            )}
+            
+            <View style={[styles.tempContainer, isLandscape && styles.landscapeTempContainer]}>          
+              <Image
+                style={[
+                  styles.weatherIcon, 
+                  isSmallScreen && { width: 80, height: 80 },
+                  isLandscape && styles.landscapeWeatherIcon
+                ]}
+                source={{ uri: getWeatherIconUrl(weatherCondition.icon) }}
+              />
+              <SafeText style={[
+                styles.temperature, 
+                isSmallScreen && { fontSize: 38 },
+                isLandscape && styles.landscapeTemperature
+              ]}>
+                {formatTemperature(temperatureData.current)}
+              </SafeText>
+            </View>
+            
+            <SafeText style={[
+              styles.weatherDescription, 
+              isSmallScreen && { fontSize: 18 },
+              isLandscape && styles.landscapeWeatherDescription
+            ]}>
+              {weatherCondition.description}
             </SafeText>
             
-            {/* Group forecasts by day */}
-            {forecastData.list.reduce((days, item) => {
-              const { day, date } = formatForecastDate(item.dt);
-              // Create unique day key
-              const dayKey = `${day}-${date}`;
+            <View style={[styles.minMaxContainer, isLandscape && styles.landscapeMinMaxContainer]}>
+              <SafeText style={[styles.minMaxTemp, isSmallScreen && { fontSize: 14 }]}>
+                {`Min: ${formatTemperature(temperatureData.min)}`}
+              </SafeText>
+              <SafeText style={[styles.minMaxTemp, isSmallScreen && { fontSize: 14 }]}>
+                {`Max: ${formatTemperature(temperatureData.max)}`}
+              </SafeText>
+            </View>
+          </View>
+
+          {/* Right side: Details and forecast */}
+          <View style={styles.landscapeRightColumn}>
+            <View style={styles.landscapeDetailsContainer}>
+              <View style={[
+                styles.detailCard, 
+                isSmallScreen && { padding: 10 },
+                isLandscape && styles.landscapeDetailCard
+              ]}>
+                <SafeText style={styles.detailTitle}>Wind</SafeText>
+                <View style={styles.windDirection}>
+                  {getWindDirectionArrow(windData.deg)}
+                  <SafeText style={[styles.detailValue, isSmallScreen && { fontSize: 16 }]}>
+                    {windSpeeds.beaufort.display}
+                  </SafeText>
+                </View>
+                <SafeText style={styles.detailSubvalue}>{windSpeeds.kmh.display}</SafeText>
+                <SafeText style={styles.detailSubvalue}>{windSpeeds.knots.display}</SafeText>
+              </View>
+                
+              <View style={[
+                styles.detailCard, 
+                isSmallScreen && { padding: 10 },
+                isLandscape && styles.landscapeDetailCard
+              ]}>
+                <SafeText style={styles.detailTitle}>Pressure</SafeText>
+                <SafeText style={[styles.detailValue, isSmallScreen && { fontSize: 16 }]}>
+                  {`${weatherData.main && typeof weatherData.main.pressure === 'number' ? weatherData.main.pressure : 0} hPa`}
+                </SafeText>
+              </View>
+                
+              <View style={[
+                styles.detailCard, 
+                isSmallScreen && { padding: 10 },
+                isLandscape && styles.landscapeDetailCard
+              ]}>
+                <SafeText style={styles.detailTitle}>Humidity</SafeText>
+                <SafeText style={[styles.detailValue, isSmallScreen && { fontSize: 16 }]}>
+                  {`${weatherData.main && typeof weatherData.main.humidity === 'number' ? weatherData.main.humidity : 0}%`}
+                </SafeText>
+              </View>
               
-              // Skip if we already have this day in our accumulator or if it's today
-              const today = new Date();
-              const itemDate = new Date(item.dt * 1000);
+              <View style={[
+                styles.detailCard, 
+                isSmallScreen && { padding: 10 },
+                isLandscape && styles.landscapeDetailCard
+              ]}>
+                <SafeText style={styles.detailTitle}>Feels Like</SafeText>
+                <SafeText style={[styles.detailValue, isSmallScreen && { fontSize: 16 }]}>
+                  {formatTemperature(temperatureData.feelsLike)}
+                </SafeText>
+              </View>
+            </View>
+
+            <View style={[styles.forecastContainer, isLandscape && styles.landscapeForecastContainer]}>
+              <TouchableOpacity 
+                style={[styles.forecastToggle, isLandscape && styles.landscapeForecastToggle]} 
+                onPress={toggleForecast}
+              >
+                <SafeText style={[styles.forecastToggleText, isSmallScreen && { fontSize: 14 }]}>
+                  {showForecast ? 'Hide Forecast' : 'Show 5-Day Forecast'}
+                </SafeText>
+                <Ionicons 
+                  name={showForecast ? 'chevron-up' : 'chevron-down'} 
+                  size={24} 
+                  color="white"
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      ) : (
+        // Portrait layout (original)
+        <>
+          <View style={styles.mainInfo}>
+            <View style={styles.locationContainer}>
+              <SafeText style={[styles.cityName, isSmallScreen && { fontSize: 22 }]}>
+                {safeText(safeExtract(weatherData, 'name', '')) + 
+                 (safeExtract(weatherData, 'sys.country', '') ? ', ' + safeExtract(weatherData, 'sys.country', '') : '')}
+              </SafeText>
+              <TouchableOpacity 
+                style={styles.locationButton}
+                onPress={() => setShowLocationMenu(!showLocationMenu)}
+              >
+                <View style={styles.locationButtonContent}>
+                  <Ionicons name="location" size={20} color="white" />
+                  <SafeText style={styles.changeLocationText}>Change</SafeText>
+                </View>
+              </TouchableOpacity>
+            </View>
+          
+            {showLocationMenu && (
+              <View style={styles.locationMenu}>
+                <View style={styles.locationMenuHeader}>
+                  <SafeText style={[styles.locationMenuTitle, isSmallScreen && { fontSize: 16 }]}>
+                    Choose Location
+                  </SafeText>
+                  <TouchableOpacity 
+                    style={styles.locationMenuCloseButton}
+                    onPress={() => setShowLocationMenu(false)}
+                  >
+                    <Ionicons name="close" size={20} color="white" />
+                  </TouchableOpacity>
+                </View>
+                <ScrollView 
+                  style={styles.locationMenuScroll} 
+                  showsVerticalScrollIndicator={false}
+                  bounces={false}
+                  contentContainerStyle={{paddingVertical: 5}}
+                >
+                  <TouchableOpacity 
+                    style={[styles.locationMenuItem, !selectedLocation ? styles.activeLocationMenuItem : null]}
+                    onPress={useCurrentLocation}
+                  >
+                    <View style={styles.locationMenuItemIcon}>
+                      <Ionicons name="navigate" size={20} color="#4cc9f0" />
+                    </View>
+                    <SafeText style={styles.locationMenuItemText}>Current Location</SafeText>
+                  </TouchableOpacity>
+                  
+                  {savedLocations.map((location, index) => (
+                    <TouchableOpacity 
+                      key={index}
+                      style={[
+                        styles.locationMenuItem,
+                        selectedLocation && 
+                        selectedLocation.latitude === location.latitude && 
+                        selectedLocation.longitude === location.longitude ? 
+                        styles.activeLocationMenuItem : null
+                      ]}
+                      onPress={() => changeLocation(location)}
+                    >
+                      <View style={styles.locationMenuItemIcon}>
+                        <Ionicons 
+                          name={
+                            defaultLocation && 
+                            defaultLocation.latitude === location.latitude && 
+                            defaultLocation.longitude === location.longitude ? 
+                            "star" : "location-outline"
+                          } 
+                          size={20} 
+                          color="#4cc9f0" 
+                        />
+                      </View>
+                      <SafeText style={styles.locationMenuItemText}>{location.name}</SafeText>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+            )}
+          
+            <View style={styles.tempContainer}>
+              <Image
+                style={[styles.weatherIcon, isSmallScreen && { width: 80, height: 80 }]
+                }
+                source={{ uri: getWeatherIconUrl(weatherCondition.icon) }}
+              />
+              <SafeText style={[styles.temperature, isSmallScreen && { fontSize: 38 }]}>
+                {formatTemperature(temperatureData.current)}
+              </SafeText>
+            </View>
+            
+            <SafeText style={[styles.weatherDescription, isSmallScreen && { fontSize: 18 }]}>
+              {weatherCondition.description}
+            </SafeText>
+            
+            <View style={styles.minMaxContainer}>
+              <SafeText style={[styles.minMaxTemp, isSmallScreen && { fontSize: 14 }]}>
+                {`Min: ${formatTemperature(temperatureData.min)}`}
+              </SafeText>
+              <SafeText style={[styles.minMaxTemp, isSmallScreen && { fontSize: 14 }]}>
+                {`Max: ${formatTemperature(temperatureData.max)}`}
+              </SafeText>
+            </View>
+          </View>
+          
+          <View style={styles.detailsContainer}>
+            <View style={[styles.detailCard, isSmallScreen && { padding: 10 }]}>
+              <SafeText style={styles.detailTitle}>Wind</SafeText>
+              <View style={styles.windDirection}>
+                {getWindDirectionArrow(windData.deg)}
+                <SafeText style={[styles.detailValue, isSmallScreen && { fontSize: 16 }]}>
+                  {windSpeeds.beaufort.display}
+                </SafeText>
+              </View>
+              <SafeText style={styles.detailSubvalue}>{windSpeeds.kmh.display}</SafeText>
+              <SafeText style={styles.detailSubvalue}>{windSpeeds.knots.display}</SafeText>
+            </View>
               
-              if (days.some(d => d.key === dayKey) || 
-                  (today.getDate() === itemDate.getDate() && 
-                   today.getMonth() === itemDate.getMonth() && 
-                   today.getFullYear() === itemDate.getFullYear())) {
-                return days;
+            <View style={[styles.detailCard, isSmallScreen && { padding: 10 }]}>
+              <SafeText style={styles.detailTitle}>Pressure</SafeText>
+              <SafeText style={[styles.detailValue, isSmallScreen && { fontSize: 16 }]}>
+                {`${weatherData.main && typeof weatherData.main.pressure === 'number' ? weatherData.main.pressure : 0} hPa`}
+              </SafeText>
+            </View>
+              
+            <View style={[styles.detailCard, isSmallScreen && { padding: 10 }]}
+            >
+              <SafeText style={styles.detailTitle}>Humidity</SafeText>
+              <SafeText style={[styles.detailValue, isSmallScreen && { fontSize: 16 }]}>
+                {`${weatherData.main && typeof weatherData.main.humidity === 'number' ? weatherData.main.humidity : 0}%`}
+              </SafeText>
+            </View>
+            
+            <View style={[styles.detailCard, isSmallScreen && { padding: 10 }]}>
+              <SafeText style={styles.detailTitle}>Feels Like</SafeText>
+              <SafeText style={[styles.detailValue, isSmallScreen && { fontSize: 16 }]}>
+                {formatTemperature(temperatureData.feelsLike)}
+              </SafeText>
+            </View>
+          </View>
+          
+          <View style={styles.forecastContainer}>
+            <TouchableOpacity 
+              style={styles.forecastToggle} 
+              onPress={toggleForecast}
+            >
+              <SafeText style={[styles.forecastToggleText, isSmallScreen && { fontSize: 14 }]}>
+                {showForecast ? 'Hide Forecast' : 'Show 5-Day Forecast'}
+              </SafeText>
+              <Ionicons 
+                name={showForecast ? 'chevron-up' : 'chevron-down'} 
+                size={24} 
+                color="white"
+              />
+            </TouchableOpacity>
+          </View>
+        </>
+      )}
+      
+      {/* Forecasts section - common for both layouts with conditional styling */}
+      {showForecast && forecastData && (
+        <View style={[
+          styles.forecastContent, 
+          isLandscape && styles.landscapeForecastContent
+        ]}>
+          <FlatList
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            data={forecastData.list.slice(0, 24)}
+            keyExtractor={(item) => item.dt.toString()}
+            renderItem={({ item }) => {
+              const { time, hour } = formatForecastDate(item.dt);
+              // Get appropriate background based on time of day
+              let timeStyle = styles.dayTime;
+              if (hour < 6 || hour >= 18) {
+                timeStyle = styles.nightTime;
+              } else if (hour < 10 || hour >= 16) {
+                timeStyle = styles.morningEveningTime;
               }
               
-              // Find all entries for this day
-              const dayEntries = forecastData.list.filter(entry => {
-                const entryDate = formatForecastDate(entry.dt);
-                const entryDayKey = `${entryDate.day}-${entryDate.date}`;
-                return entryDayKey === dayKey;
-              });
-              
-              // Calculate min/max temperatures and average condition for the day
-              const temps = dayEntries.map(entry => entry.main.temp);
-              const minTemp = Math.min(...temps);
-              const maxTemp = Math.max(...temps);
-                // Get the most common weather condition
-              const weatherCounts = {};
-              dayEntries.forEach(entry => {
-                if (entry.weather && entry.weather.length > 0) {
-                  const condition = entry.weather[0].main;
-                  weatherCounts[condition] = (weatherCounts[condition] || 0) + 1;
-                }
-              });
-              
-              const mostCommonWeather = Object.entries(weatherCounts).length > 0 ? 
-                Object.entries(weatherCounts).sort((a, b) => b[1] - a[1])[0][0] : 
-                "Unknown";                // Get the icon for the most common weather during daytime
-              const dayTimeEntry = dayEntries.find(entry => {
-                const hour = formatForecastDate(entry.dt).hour;
-                return hour >= 10 && hour <= 14 && entry.weather && entry.weather.length > 0;
-              }) || dayEntries.find(entry => entry.weather && entry.weather.length > 0) || dayEntries[0] || {};
-                
-              // Safely extract weather icon with fallbacks at every step
-              const weatherIcon = dayTimeEntry.weather && 
-                                 dayTimeEntry.weather.length > 0 && 
-                                 dayTimeEntry.weather[0] && 
-                                 dayTimeEntry.weather[0].icon ? 
-                                 dayTimeEntry.weather[0].icon : '01d';
-                
-              days.push({
-                key: dayKey,
-                day,
-                date: itemDate,
-                minTemp,
-                maxTemp,
-                weatherIcon: weatherIcon,
-                weatherDesc: mostCommonWeather
-              });
-              
-              return days;
-            }, []).slice(0, 5).map(day => (              <View key={day.key} style={[styles.dailyForecastItem, isSmallScreen && { padding: 10 }]}>                <View style={styles.dailyForecastDayContainer}>
-                  <SafeText style={[styles.dailyForecastDay, isSmallScreen && { fontSize: 14 }]}>
-                    {`${day.day} ${day.date.getDate()}`}
+              return (
+                <View style={[
+                  styles.forecastItem, 
+                  timeStyle,
+                  isSmallScreen && { minWidth: 90, padding: 8 },
+                  isLandscape && styles.landscapeForecastItem
+                ]}>
+                  <SafeText style={[
+                    styles.forecastTime, 
+                    isSmallScreen && { fontSize: 12, marginBottom: 5 }
+                  ]}>
+                    {time}
                   </SafeText>
-                </View>
-                <View style={styles.dailyForecastWeatherContainer}>
-                  <Image
-                    style={[styles.dailyForecastIcon, isSmallScreen && { width: 36, height: 36 }]}
-                    source={{ uri: getWeatherIconUrl(day.weatherIcon) }}
+                  <Image 
+                    style={[
+                      styles.forecastIcon, 
+                      isSmallScreen && { width: 40, height: 40, marginBottom: 3 },
+                      isLandscape && styles.landscapeForecastIcon
+                    ]}
+                    source={{ uri: getWeatherIconUrl(item.weather && item.weather.length > 0 ? item.weather[0].icon : '01d') }}
                   />
-                  <SafeText style={[styles.dailyForecastDesc, isSmallScreen && { fontSize: 13 }]}>
-                    {day.weatherDesc}
+                  <SafeText style={[
+                    styles.weatherCondition, 
+                    isSmallScreen && { fontSize: 11, marginBottom: 3 }
+                  ]}>
+                    {item.weather && item.weather.length > 0 && item.weather[0].main ? item.weather[0].main : "Unknown"}
                   </SafeText>
-                </View>
-                <View style={[styles.dailyForecastTemp, isSmallScreen && { width: 130 }]}>
-                  <SafeText style={[styles.dailyForecastTempMin, isSmallScreen && { fontSize: 13, width: 42 }]}>
-                    {formatTemperature(day.minTemp)}
+                  <SafeText style={[
+                    styles.forecastTemp, 
+                    isSmallScreen && { fontSize: 14, marginBottom: 5 }
+                  ]}>
+                    {formatTemperature(item.main && typeof item.main.temp === 'number' ? item.main.temp : 0)}
                   </SafeText>
-                  <View style={styles.tempBar}>
-                    <View style={styles.tempBarFill} />
+                  <View style={styles.forecastWindContainer}>
+                    <View style={isSmallScreen && { transform: [{ scale: 0.8 }] }}>
+                      {getWindDirectionArrow(item.wind && typeof item.wind.deg === 'number' ? item.wind.deg : 0)}
+                    </View>
+                    <SafeText style={[styles.forecastWind, isSmallScreen && { fontSize: 10 }]}>
+                      {`${Math.round((item.wind && typeof item.wind.speed === 'number' ? item.wind.speed : 0) * 3.6)} km/h`}
+                    </SafeText>
                   </View>
-                  <SafeText style={[styles.dailyForecastTempMax, isSmallScreen && { fontSize: 13, width: 42 }]}>
-                    {formatTemperature(day.maxTemp)}
-                  </SafeText>
                 </View>
+              );
+            }}
+          />            
+          <SafeText style={[
+            styles.forecastTitle, 
+            isSmallScreen && { fontSize: 18 },
+            isLandscape && styles.landscapeForecastTitle
+          ]}>
+            5-Day Forecast
+          </SafeText>
+          
+          {/* Group forecasts by day */}
+          {forecastData.list.reduce((days, item) => {
+            const { day, date } = formatForecastDate(item.dt);
+            // Create unique day key
+            const dayKey = `${day}-${date}`;
+            
+            // Skip if we already have this day in our accumulator or if it's today
+            const today = new Date();
+            const itemDate = new Date(item.dt * 1000);
+            
+            if (days.some(d => d.key === dayKey) || 
+                (today.getDate() === itemDate.getDate() && 
+                 today.getMonth() === itemDate.getMonth() && 
+                 today.getFullYear() === itemDate.getFullYear())) {
+              return days;
+            }
+            
+            // Find all entries for this day
+            const dayEntries = forecastData.list.filter(entry => {
+              const entryDate = formatForecastDate(entry.dt);
+              const entryDayKey = `${entryDate.day}-${entryDate.date}`;
+              return entryDayKey === dayKey;
+            });
+            
+            // Calculate min/max temperatures and average condition for the day
+            const temps = dayEntries.map(entry => entry.main.temp);
+            const minTemp = Math.min(...temps);
+            const maxTemp = Math.max(...temps);
+            
+            // Get the most common weather condition
+            const weatherCounts = {};
+            dayEntries.forEach(entry => {
+              if (entry.weather && entry.weather.length > 0) {
+                const condition = entry.weather[0].main;
+                weatherCounts[condition] = (weatherCounts[condition] || 0) + 1;
+              }
+            });
+            
+            const mostCommonWeather = Object.entries(weatherCounts).length > 0 ? 
+              Object.entries(weatherCounts).sort((a, b) => b[1] - a[1])[0][0] : 
+              "Unknown";
+            
+            // Get the icon for the most common weather during daytime
+            const dayTimeEntry = dayEntries.find(entry => {
+              const hour = formatForecastDate(entry.dt).hour;
+              return hour >= 10 && hour <= 14 && entry.weather && entry.weather.length > 0;
+            }) || dayEntries.find(entry => entry.weather && entry.weather.length > 0) || dayEntries[0] || {};
+              
+            // Safely extract weather icon with fallbacks at every step
+            const weatherIcon = dayTimeEntry.weather && 
+                               dayTimeEntry.weather.length > 0 && 
+                               dayTimeEntry.weather[0] && 
+                               dayTimeEntry.weather[0].icon ? 
+                               dayTimeEntry.weather[0].icon : '01d';
+              
+            days.push({
+              key: dayKey,
+              day,
+              date: itemDate,
+              minTemp,
+              maxTemp,
+              weatherIcon: weatherIcon,
+              weatherDesc: mostCommonWeather
+            });
+            
+            return days;
+          }, []).slice(0, 5).map(day => (
+            <View key={day.key} style={[
+              styles.dailyForecastItem, 
+              isSmallScreen && { padding: 10 },
+              isLandscape && styles.landscapeDailyForecastItem
+            ]}>
+              <View style={styles.dailyForecastDayContainer}>
+                <SafeText style={[styles.dailyForecastDay, isSmallScreen && { fontSize: 14 }]}>
+                  {`${day.day} ${day.date.getDate()}`}
+                </SafeText>
               </View>
-            ))}
-          </View>
-        )}
-      </View>
+              <View style={styles.dailyForecastWeatherContainer}>
+                <Image
+                  style={[styles.dailyForecastIcon, isSmallScreen && { width: 36, height: 36 }]
+                  }
+                  source={{ uri: getWeatherIconUrl(day.weatherIcon) }}
+                />
+                <SafeText style={[styles.dailyForecastDesc, isSmallScreen && { fontSize: 13 }]}>
+                  {day.weatherDesc}
+                </SafeText>
+              </View>
+              <View style={[styles.dailyForecastTemp, isSmallScreen && { width: 130 }]}>
+                <SafeText style={[styles.dailyForecastTempMin, isSmallScreen && { fontSize: 13, width: 42 }]}>
+                  {formatTemperature(day.minTemp)}
+                </SafeText>
+                <View style={styles.tempBar}>
+                  <View style={styles.tempBarFill} />
+                </View>
+                <SafeText style={[styles.dailyForecastTempMax, isSmallScreen && { fontSize: 13, width: 42 }]}>
+                  {formatTemperature(day.maxTemp)}
+                </SafeText>
+              </View>
+            </View>
+          ))}
+        </View>
+      )}
     </ScrollView>
   );
 };
@@ -674,14 +924,18 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#1e3a8a',
-  },  portraitContent: {
+  },
+  portraitContent: {
     paddingVertical: 40,
     paddingHorizontal: 20,
   },
   landscapeContent: {
-    flexDirection: 'row',
     paddingVertical: 20,
     paddingHorizontal: 20,
+  },
+  landscapeContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   mainInfo: {
     alignItems: 'center',
@@ -694,7 +948,12 @@ const styles = StyleSheet.create({
     paddingRight: 20,
     borderRightWidth: 1,
     borderRightColor: 'rgba(255, 255, 255, 0.1)',
-  },locationContainer: {
+  },
+  landscapeRightColumn: {
+    flex: 1,
+    paddingLeft: 20,
+  },
+  locationContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -746,6 +1005,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.4,
     shadowRadius: 10,
     elevation: 15,
+  },
+  landscapeLocationMenu: {
+    position: 'absolute',
+    top: 50,
+    left: 20,
+    right: 20,
+    zIndex: 1000,
   },
   locationMenuHeader: {
     flexDirection: 'row',
@@ -852,12 +1118,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   landscapeDetailsContainer: {
-    flex: 1,
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    alignContent: 'center',
-  },  detailCard: {
+    alignContent: 'flex-start',
+  },
+  detailCard: {
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
     borderRadius: 15,
     padding: 15,
@@ -871,6 +1137,11 @@ const styles = StyleSheet.create({
     elevation: 5,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  landscapeDetailCard: {
+    width: '48%',
+    marginBottom: 10,
+    padding: 12,
   },
   detailTitle: {
     fontSize: 16,
@@ -931,6 +1202,9 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 3,
   },
+  landscapeForecastContainer: {
+    marginTop: 5,
+  },
   forecastToggleText: {
     fontSize: 16,
     fontWeight: 'bold',
@@ -953,6 +1227,10 @@ const styles = StyleSheet.create({
     elevation: 5,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  landscapeForecastItem: {
+    minWidth: 90,
+    padding: 10,
   },
   dayTime: {
     backgroundColor: 'rgba(79, 172, 254, 0.4)',
@@ -1015,6 +1293,9 @@ const styles = StyleSheet.create({
     elevation: 5,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  landscapeForecastToggle: {
+    marginBottom: 10,
   },
   dailyForecastDayContainer: {
     width: 65,
