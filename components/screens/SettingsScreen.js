@@ -32,7 +32,8 @@ const SettingsScreen = () => {
   const [isSearching, setIsSearching] = useState(false);
   const { width, height } = useWindowDimensions();
   const isLandscape = width > height;
-  // Load settings from AsyncStorage
+
+  // SETUP AND EFFECTS
   useEffect(() => {
     const loadSettings = async () => {
       try {
@@ -64,7 +65,7 @@ const SettingsScreen = () => {
     loadSettings();
   }, []);
 
-  // Toggle temperature unit
+  // SETTINGS FUNCTIONS
   const toggleTemperatureUnit = async (value) => {
     try {
       setUseCelsius(value);
@@ -74,7 +75,7 @@ const SettingsScreen = () => {
       Alert.alert('Error', 'Failed to save temperature unit setting');
     }
   };
-  // Save default location
+
   const saveDefaultLocation = async () => {
     try {
       if (!latitude || !longitude) {
@@ -96,11 +97,9 @@ const SettingsScreen = () => {
         longitude: numLon
       };
       
-      // Save as default location
       await AsyncStorage.setItem('defaultLocation', JSON.stringify(location));
       setDefaultLocation(location);
       
-      // Add to saved locations if not already saved
       const locationExists = savedLocations.some(
         loc => loc.latitude === numLat && loc.longitude === numLon
       );
@@ -118,7 +117,7 @@ const SettingsScreen = () => {
     }
   };
   
-  // Search for a location by name
+  // LOCATION SEARCH FUNCTIONS
   const searchLocation = async () => {
     if (!searchQuery.trim()) {
       Alert.alert('Error', 'Please enter a location to search');
@@ -167,7 +166,6 @@ const SettingsScreen = () => {
     }
   };
   
-  // Select a location from search results
   const selectSearchResult = (location) => {
     setLocationName(location.name);
     setLatitude(location.latitude.toString());
@@ -175,7 +173,7 @@ const SettingsScreen = () => {
     setShowSearchModal(false);
   };
   
-  // Save a location without making it default
+  // LOCATION MANAGEMENT FUNCTIONS
   const saveLocation = async () => {
     try {
       if (!latitude || !longitude) {
@@ -197,7 +195,6 @@ const SettingsScreen = () => {
         longitude: numLon
       };
       
-      // Check if location already exists
       const locationExists = savedLocations.some(
         loc => loc.latitude === numLat && loc.longitude === numLon
       );
@@ -218,7 +215,6 @@ const SettingsScreen = () => {
     }
   };
   
-  // Set a saved location as default
   const setAsDefault = async (location) => {
     try {
       await AsyncStorage.setItem('defaultLocation', JSON.stringify(location));
@@ -233,7 +229,6 @@ const SettingsScreen = () => {
     }
   };
   
-  // Delete a saved location
   const deleteLocation = async (location) => {
     try {
       const updatedLocations = savedLocations.filter(
@@ -243,7 +238,6 @@ const SettingsScreen = () => {
       setSavedLocations(updatedLocations);
       await AsyncStorage.setItem('savedLocations', JSON.stringify(updatedLocations));
       
-      // If this was the default location, clear the default
       if (defaultLocation && 
           defaultLocation.latitude === location.latitude && 
           defaultLocation.longitude === location.longitude) {
@@ -262,10 +256,8 @@ const SettingsScreen = () => {
     }
   };
 
-  // Use current location
   const useCurrentLocation = async () => {
     try {
-      // Request location permission
       let { status } = await Location.requestForegroundPermissionsAsync();
       
       if (status !== 'granted') {
@@ -273,11 +265,9 @@ const SettingsScreen = () => {
         return;
       }
       
-      // Get current location
       const location = await Location.getCurrentPositionAsync({});
       const { latitude, longitude } = location.coords;
       
-      // Get location name from coordinates (reverse geocoding)
       const geocode = await Location.reverseGeocodeAsync({
         latitude,
         longitude
@@ -298,7 +288,6 @@ const SettingsScreen = () => {
     }
   };
 
-  // Clear default location
   const clearDefaultLocation = async () => {
     try {
       await AsyncStorage.removeItem('defaultLocation');
@@ -312,6 +301,8 @@ const SettingsScreen = () => {
       Alert.alert('Error', 'Failed to clear default location');
     }
   };
+
+  // RENDER
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -321,7 +312,7 @@ const SettingsScreen = () => {
         <Text style={styles.title}>Settings</Text>
         
         {isLandscape ? (
-          // Landscape layout with two columns
+          // LANDSCAPE LAYOUT
           <>
             <View style={styles.landscapeLeftColumn}>
               <View style={styles.card}>
@@ -469,7 +460,7 @@ const SettingsScreen = () => {
             </View>
           </>
         ) : (
-          // Original portrait layout
+          // PORTRAIT LAYOUT
           <>
             <View style={styles.card}>
               <Text style={styles.sectionTitle}>Temperature Unit</Text>
@@ -613,7 +604,7 @@ const SettingsScreen = () => {
         )}
       </ScrollView>
       
-      {/* Search Modal */}
+      {/* SEARCH MODAL */}
       <Modal
         visible={showSearchModal}
         animationType="slide"

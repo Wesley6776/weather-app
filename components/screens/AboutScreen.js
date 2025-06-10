@@ -19,7 +19,7 @@ const AboutScreen = () => {
     <ScrollView style={styles.container}>      
       <View style={isLandscape ? styles.landscapeContent : styles.content}>
         {isLandscape ? (
-          // Landscape layout
+          // LANDSCAPE LAYOUT
           <View style={styles.landscapeContainer}>
             <View style={styles.landscapeLeftColumn}>
               <View style={styles.logoContainer}>
@@ -98,7 +98,7 @@ const AboutScreen = () => {
             </View>
           </View>
         ) : (
-          // Portrait layout (original)
+          // PORTRAIT LAYOUT
           <>
             <View style={styles.logoContainer}>
               <Image

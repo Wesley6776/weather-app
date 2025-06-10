@@ -17,7 +17,6 @@ import { safeExtract, safeText, validateTextValue } from '../../utils/textUtils'
 import { extractTemperatureData, extractWeatherCondition, extractWindData, isValidWeatherData } from '../../utils/weatherDataSafety';
 import { SafeText } from '../SafeText';
 
-// API key for OpenWeatherMap - replace with your own key from openweathermap.org
 const API_KEY = '2d3163d491a8f6b2c97b6246750874da';
 
 const WeatherScreen = () => {
@@ -34,7 +33,7 @@ const WeatherScreen = () => {
   const { width, height } = useWindowDimensions();
   const isLandscape = width > height;
   const isSmallScreen = width < 350 || height < 600;
-  // Get settings from AsyncStorage
+
   const getSettings = async () => {
     try {
       const storedUseCelsius = await AsyncStorage.getItem('useCelsius');
@@ -57,7 +56,8 @@ const WeatherScreen = () => {
     } catch (error) {
       console.error('Error getting settings:', error);
     }
-  };// Fetch weather data based on location
+  };
+
   const fetchWeatherData = async (latitude, longitude) => {
     try {
       const apiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=metric`;
@@ -86,10 +86,8 @@ const WeatherScreen = () => {
     }
   };
   
-  // Fetch hourly forecast data
   const fetchForecastData = async (latitude, longitude) => {
     try {
-      // Using the 5-day/3-hour forecast as the hourly API requires a paid subscription
       const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=metric`;
       console.log('Fetching forecast from URL:', forecastUrl);
       
@@ -98,7 +96,6 @@ const WeatherScreen = () => {
       if (!response.ok) {
         const errorText = await response.text();
         console.error('Forecast API response not OK:', response.status, errorText);
-        // We don't want to throw here as the main weather data might still be available
         console.error(`Forecast data not available (Status: ${response.status})`);
         return;
       }
@@ -108,9 +105,9 @@ const WeatherScreen = () => {
       setForecastData(data);
     } catch (error) {
       console.error('Forecast fetch error:', error);
-      // We don't set the main error state here as we still want to show the current weather
     }
-  };  // Get user's current location or use default location
+  };
+
   const getLocation = useCallback(async () => {
     try {
       setLoading(true);
@@ -153,7 +150,7 @@ const WeatherScreen = () => {
       setLoading(false);
       console.error('Location error:', error);
     }
-  }, [selectedLocation, defaultLocation]); // Only include necessary dependencies
+  }, [selectedLocation, defaultLocation]);
 
   // Change the selected location
   const changeLocation = (location) => {
@@ -187,11 +184,12 @@ const WeatherScreen = () => {
       setLoading(false);
       console.error('Location error:', error);
     }
-  };  // Initial setup
+  };  
+  
+  // SETUP AND EFFECTS
   useEffect(() => {
     getSettings();
 
-    // Remove any old console error overrides that might be causing issues
     const originalConsoleError = console.error;
     
     return () => {
@@ -199,11 +197,10 @@ const WeatherScreen = () => {
     };
   }, []);
 
-  // Fetch weather when settings change
   useEffect(() => {
     getLocation();
   }, [defaultLocation, getLocation]);
-    // Monitor AsyncStorage for changes in saved locations
+    
   useEffect(() => {
     const checkSavedLocations = async () => {
       try {
@@ -216,25 +213,21 @@ const WeatherScreen = () => {
       }
     };
 
-    // Set up listener for app coming to foreground
     const subscription = AppState.addEventListener('change', nextAppState => {
       if (nextAppState === 'active') {
         checkSavedLocations();
       }
     });
 
-    // Check initially and set up interval for periodic checks
     checkSavedLocations();
-    const intervalId = setInterval(checkSavedLocations, 5000); // Check every 5 seconds
+    const intervalId = setInterval(checkSavedLocations, 5000);
 
-    // Clean up
     return () => {
       clearInterval(intervalId);
       subscription.remove();
     };
   }, []);
 
-  // Monitor AsyncStorage for changes in temperature unit
   useEffect(() => {
     const checkTemperatureUnit = async () => {
       try {
@@ -247,41 +240,35 @@ const WeatherScreen = () => {
       }
     };
 
-    // Set up app state listener for temperature unit changes
     const subscription = AppState.addEventListener('change', nextAppState => {
       if (nextAppState === 'active') {
         checkTemperatureUnit();
       }
     });
 
-    // Check for temperature unit changes periodically
-    const intervalId = setInterval(checkTemperatureUnit, 1000); // Check every second
+    const intervalId = setInterval(checkTemperatureUnit, 1000);
 
-    // Clean up
     return () => {
       clearInterval(intervalId);
       subscription.remove();
     };
   }, []);
   
-  // Convert temperature
+  // UTILITY FUNCTIONS
   const convertTemperature = (celsius) => {
     return useCelsius ? celsius : (celsius * 9/5) + 32;
   };  
   
-  // Format temperature with unit
   const formatTemperature = (celsius) => {
-    // Ensure celsius is a number to avoid type errors
     const celsiusValue = typeof celsius === 'number' ? celsius : 0;
     const temp = convertTemperature(celsiusValue);
-    // Ensure we're returning a string with proper formatting
     const result = `${Math.round(temp)}°${useCelsius ? 'C' : 'F'}`;
-    // Validate the result before returning
+
     validateTextValue(result, 'formatTemperature');
     return result;
-  };// Get wind direction arrow
+  };
+
   const getWindDirectionArrow = (degrees) => {
-    // Add extra safety by ensuring degrees is a number
     const rotationDegrees = typeof degrees === 'number' ? degrees : 0;
     
     return (
@@ -293,18 +280,13 @@ const WeatherScreen = () => {
         />
       </View>
     );
-  };  // Get wind speed from m/s to different units
+  };
+  
   const getWindSpeed = (speedInMS) => {
-    // Ensure speedInMS is a number
     const speed = typeof speedInMS === 'number' ? speedInMS : 0;
     
-    // Beaufort scale calculation
     const beaufort = Math.round(Math.cbrt(Math.pow(speed / 0.836, 2)));
-    
-    // Knots calculation (1 m/s = 1.94384 knots)
     const knots = Math.round(speed * 1.94384);
-    
-    // km/h calculation (1 m/s = 3.6 km/h)
     const kmh = Math.round(speed * 3.6);
     
     return {
@@ -326,12 +308,11 @@ const WeatherScreen = () => {
       }
     };
   };
-    // Get weather icon URL
+  
   const getWeatherIconUrl = (iconCode) => {
     return `https://openweathermap.org/img/wn/${iconCode}@4x.png`;
   };
   
-  // Format date for forecast
   const formatForecastDate = (timestamp) => {
     const date = new Date(timestamp * 1000);
     return {
@@ -342,10 +323,12 @@ const WeatherScreen = () => {
     };
   };
   
-  // Toggle forecast visibility
   const toggleForecast = () => {
     setShowForecast(!showForecast);
-  };  if (loading) {
+  };  
+  
+  // LOADING AND ERROR STATES
+  if (loading) {
     return (
       <View style={styles.centeredContainer}>
         <ActivityIndicator size="large" color="#0096c7" />
@@ -370,7 +353,6 @@ const WeatherScreen = () => {
     );
   }
   
-  // Check if the weather data is valid
   if (!isValidWeatherData(weatherData)) {
     return (
       <View style={styles.centeredContainer}>
@@ -380,13 +362,10 @@ const WeatherScreen = () => {
     );
   }
   
-  // Extract temperature data using our safety utility
+  // DATA PREPARATION
   const temperatureData = extractTemperatureData(weatherData);
-  // Extract weather condition data
   const weatherCondition = extractWeatherCondition(weatherData);
-  // Extract wind data
   const windData = extractWindData(weatherData);
-  // Calculate wind speed in different units
   const windSpeeds = getWindSpeed(safeExtract(weatherData, 'wind.speed', 0));
 
   return (
@@ -395,7 +374,7 @@ const WeatherScreen = () => {
       contentContainerStyle={isLandscape ? styles.landscapeContent : styles.portraitContent}
     >      
       {isLandscape ? (
-        // Landscape layout
+        // LANDSCAPE LAYOUT
         <View style={styles.landscapeContainer}>
           {/* Left side: Main weather info */}
           <View style={styles.landscapeMainInfo}>        
@@ -582,7 +561,7 @@ const WeatherScreen = () => {
           </View>
         </View>
       ) : (
-        // Portrait layout (original)
+        // PORTRAIT LAYOUT
         <>
           <View style={styles.mainInfo}>
             <View style={styles.locationContainer}>
@@ -740,7 +719,7 @@ const WeatherScreen = () => {
         </>
       )}
       
-      {/* Forecasts section - common for both layouts with conditional styling */}
+      {/* FORECASTS SECTION */}
       {showForecast && forecastData && (
         <View style={[
           styles.forecastContent, 
@@ -753,7 +732,6 @@ const WeatherScreen = () => {
             keyExtractor={(item) => item.dt.toString()}
             renderItem={({ item }) => {
               const { time, hour } = formatForecastDate(item.dt);
-              // Get appropriate background based on time of day
               let timeStyle = styles.dayTime;
               if (hour < 6 || hour >= 18) {
                 timeStyle = styles.nightTime;
