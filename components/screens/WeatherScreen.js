@@ -203,8 +203,7 @@ const WeatherScreen = () => {
   useEffect(() => {
     getLocation();
   }, [defaultLocation, getLocation]);
-  
-  // Monitor AsyncStorage for changes in saved locations
+    // Monitor AsyncStorage for changes in saved locations
   useEffect(() => {
     const checkSavedLocations = async () => {
       try {
@@ -234,6 +233,37 @@ const WeatherScreen = () => {
       subscription.remove();
     };
   }, []);
+
+  // Monitor AsyncStorage for changes in temperature unit
+  useEffect(() => {
+    const checkTemperatureUnit = async () => {
+      try {
+        const storedUseCelsius = await AsyncStorage.getItem('useCelsius');
+        if (storedUseCelsius !== null) {
+          setUseCelsius(storedUseCelsius === 'true');
+        }
+      } catch (error) {
+        console.error('Error checking temperature unit:', error);
+      }
+    };
+
+    // Set up app state listener for temperature unit changes
+    const subscription = AppState.addEventListener('change', nextAppState => {
+      if (nextAppState === 'active') {
+        checkTemperatureUnit();
+      }
+    });
+
+    // Check for temperature unit changes periodically
+    const intervalId = setInterval(checkTemperatureUnit, 1000); // Check every second
+
+    // Clean up
+    return () => {
+      clearInterval(intervalId);
+      subscription.remove();
+    };
+  }, []);
+  
   // Convert temperature
   const convertTemperature = (celsius) => {
     return useCelsius ? celsius : (celsius * 9/5) + 32;
